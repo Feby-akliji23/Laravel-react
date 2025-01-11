@@ -1,0 +1,183 @@
+{
+    "info": {
+      "name": "Mahasiswa API with Login Token",
+      "_postman_id": "12345-abcde-67890-fghij",
+      "description": "API Collection for Mahasiswa CRUD with Sanctum Authentication",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Register",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"name\": \"Admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"password\"\n}"
+          },
+          "url": {
+            "raw": "{{base_url}}/api/register",
+            "host": ["{{base_url}}"],
+            "path": ["api", "register"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Login",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password\"\n}"
+          },
+          "url": {
+            "raw": "{{base_url}}/api/login",
+            "host": ["{{base_url}}"],
+            "path": ["api", "login"]
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "exec": [
+                "// Simpan token dari response ke Global Variable",
+                "pm.globals.set(\"auth_token\", pm.response.json().data.token);",
+                "// Debugging: tampilkan token di console",
+                "console.log(\"Auth Token:\", pm.response.json().data.token);"
+              ],
+              "type": "text/javascript"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Get Mahasiswa",
+        "request": {
+          "method": "GET",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{auth_token}}",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{base_url}}/api/mahasiswa",
+            "host": ["{{base_url}}"],
+            "path": ["api", "mahasiswa"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Create Mahasiswa",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{auth_token}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"progdi_id\": \"12345\",\n  \"nim\": \"2024001\",\n  \"nama\": \"Syaifur Rahman\",\n  \"alamat\": \"Jl. Merdeka No. 1\",\n  \"umur\": 21\n}"
+          },
+          "url": {
+            "raw": "{{base_url}}/api/mahasiswa",
+            "host": ["{{base_url}}"],
+            "path": ["api", "mahasiswa"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Update Mahasiswa",
+        "request": {
+          "method": "PUT",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{auth_token}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"nim\": \"2024002\",\n  \"nama\": \"Ahmad Budi\",\n  \"alamat\": \"Jl. Diponegoro No. 12\",\n  \"umur\": 22\n}"
+          },
+          "url": {
+            "raw": "{{base_url}}/api/mahasiswa/1",
+            "host": ["{{base_url}}"],
+            "path": ["api", "mahasiswa", "1"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Delete Mahasiswa",
+        "request": {
+          "method": "DELETE",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{auth_token}}",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{base_url}}/api/mahasiswa/1",
+            "host": ["{{base_url}}"],
+            "path": ["api", "mahasiswa", "1"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Logout",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{auth_token}}",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{base_url}}/api/logout",
+            "host": ["{{base_url}}"],
+            "path": ["api", "logout"]
+          }
+        },
+        "response": []
+      }
+    ]
+  }
