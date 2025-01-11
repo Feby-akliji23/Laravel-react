@@ -41,7 +41,7 @@ const App = () => {
           element={
             <PrivateRoute>
               <AdminLayout>
-                <h1>Setting Admin ngoook</h1>
+                <h1>Setting Admin</h1>
               </AdminLayout>
             </PrivateRoute>
           }

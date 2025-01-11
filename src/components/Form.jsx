@@ -6,21 +6,8 @@ const Form = ({
   handleSubmit,
   editMode,
   setShowForm,
-  bencana, // Tambahkan bencana sebagai props
+  wilayahList
 }) => {
-  // Fungsi untuk mendapatkan daftar wilayah unik dengan wilayah_id
-  const getWilayahList = () => {
-    if (!bencana || bencana.length === 0) return [];
-    const wilayahMap = new Map();
-    bencana.forEach((item) => {
-      if (item.wilayah?.nama && item.wilayah_id) {
-        wilayahMap.set(item.wilayah_id, item.wilayah.nama);
-      }
-    });
-    return Array.from(wilayahMap.entries());
-  };
-
-  const wilayahList = getWilayahList();
 
   return (
     <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-10">
@@ -41,20 +28,30 @@ const Form = ({
             />
           </div>
           <div className="mb-4">
-            <select
-              name="wilayah_id"
-              value={formData.wilayah_id}
+          <select
+            name="wilayah_id"
+            value={formData.wilayah_id}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg"
+            required
+          >
+            <option value="">Pilih Wilayah</option>
+            {(wilayahList || []).map(([id, nama]) => (
+              <option key={id} value={id}>
+                {nama}
+              </option>
+            ))}
+          </select>
+          </div>
+          <div className="mb-4">
+            <input
+              type="date"
+              name="tanggal"
+              value={formData.tanggal}
               onChange={handleChange}
               className="w-full p-3 border rounded-lg"
               required
-            >
-              <option value="">Pilih Wilayah</option>
-              {wilayahList.map(([id, nama]) => (
-                <option key={id} value={id}>
-                  {nama}
-                </option>
-              ))}
-            </select>
+            />
           </div>
           <div className="mb-4">
             <input

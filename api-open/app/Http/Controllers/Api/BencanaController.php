@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bencana;
+use App\Models\Wilayah;
 use Illuminate\Http\Request;
 
 class BencanaController extends Controller
@@ -33,17 +34,15 @@ public function index(Request $request)
             });
         }
 
-        // Tambahkan log untuk debugging query
-        \Log::info('SQL Query:', [$query->toSql()]);
-        \Log::info('Bindings:', $query->getBindings());
-
         // Pagination
         $bencana = $query->orderBy('created_at', 'desc')->paginate(10);
+        $allWilayah = Wilayah::all();
 
         return response()->json([
             'code' => 200,
             'message' => 'Daftar bencana berhasil diambil',
             'data' => $bencana,
+            'allWilayah' => $allWilayah, 
         ]);
     }
 

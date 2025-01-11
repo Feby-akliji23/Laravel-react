@@ -31,35 +31,34 @@ const Bencana = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchBencana = async (page = 1) => {
+const fetchBencana = async (page = 1) => {
     const cleanFilters = { ...filters };
 
     if (!cleanFilters.tanggal_dari) delete cleanFilters.tanggal_dari;
     if (!cleanFilters.tanggal_hingga) delete cleanFilters.tanggal_hingga;
 
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/bencana", {
-        params: { page, ...cleanFilters },
-        headers: { Authorization: `Bearer ${token}` },
-      });
+        const response = await axios.get("http://127.0.0.1:8000/api/bencana", {
+            params: { page, ...cleanFilters },
+            headers: { Authorization: `Bearer ${token}` },
+        });
 
-      const responseData = response.data.data;
-      setBencana(responseData.data);
-      setCurrentPage(responseData.current_page);
-      setTotalPages(responseData.last_page);
+        const responseData = response.data;
 
-      // Generate unique wilayah list from response
-      const wilayahData = responseData.data.map((item) => ({
-        id: item.wilayah_id,
-        nama: item.wilayah?.nama || "Wilayah Tidak Ditemukan",
-      }));
-      const uniqueWilayah = Array.from(new Map(wilayahData.map((w) => [w.id, w])).values());
-      setWilayahList(uniqueWilayah);
+        // Set data bencana dari pagination
+        setBencana(responseData.data.data);
+        setCurrentPage(responseData.data.current_page);
+        setTotalPages(responseData.data.last_page);
+
+        // Set daftar wilayah langsung dari respons API
+        setWilayahList(responseData.allWilayah);
     } catch (err) {
-      console.error("Error fetching bencana:", err);
-      Swal.fire("Error", "Gagal mengambil data bencana.", "error");
+        console.error("Error fetching bencana:", err);
+        Swal.fire("Error", "Gagal mengambil data bencana.", "error");
     }
-  };
+};
+
+
 
   useEffect(() => {
     fetchBencana(currentPage);
@@ -71,57 +70,57 @@ const Bencana = () => {
     setCurrentPage(1); // Reset pagination jika filter berubah
   };
 
-  const handleRowClick = (bencana) => {
-    Swal.fire({
-      title: "Pilih Aksi",
-      text: "Apakah Anda ingin mengedit atau menghapus data ini?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Edit",
-      cancelButtonText: "Delete",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        // Jika memilih Edit
-        setFormData({
-          kib: bencana.kib,
-          wilayah_id: bencana.wilayah_id,
-          tanggal: bencana.tanggal,
-          kejadian: bencana.kejadian,
-          detail: bencana.detail,
-        });
-        setEditMode(true);
-        setCurrentBencanaId(bencana.id);
-        setShowForm(true);
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        // Jika memilih Delete
-        handleDelete(bencana.id);
-      }
-    });
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      const confirm = await Swal.fire({
-        title: "Konfirmasi Hapus",
-        text: "Apakah Anda yakin ingin menghapus data ini?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Ya, Hapus",
-        cancelButtonText: "Batal",
+const handleRowClick = (bencana) => {
+  Swal.fire({
+    title: "Pilih Aksi",
+    text: "Apakah Anda ingin mengedit atau menghapus data ini?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Edit",
+    cancelButtonText: "Delete",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      // Jika memilih Edit
+      setFormData({
+        kib: bencana.kib,
+        wilayah_id: bencana.wilayah_id,
+        tanggal: bencana.tanggal,
+        kejadian: bencana.kejadian,
+        detail: bencana.detail,
       });
-
-      if (confirm.isConfirmed) {
-        await axios.delete(`http://127.0.0.1:8000/api/bencana/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        Swal.fire("Berhasil!", "Data berhasil dihapus.", "success");
-        fetchBencana(currentPage);
-      }
-    } catch (err) {
-      console.error("Error deleting bencana:", err);
-      Swal.fire("Error", "Gagal menghapus data.", "error");
+      setEditMode(true);
+      setCurrentBencanaId(bencana.id);
+      setShowForm(true);
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      // Jika memilih Delete
+      handleDelete(bencana.id);
     }
-  };
+  });
+};
+
+const handleDelete = async (id) => {
+  try {
+    const confirm = await Swal.fire({
+      title: "Konfirmasi Hapus",
+      text: "Apakah Anda yakin ingin menghapus data ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+    });
+
+    if (confirm.isConfirmed) {
+      await axios.delete(`http://127.0.0.1:8000/api/bencana/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Swal.fire("Berhasil!", "Data berhasil dihapus.", "success");
+      fetchBencana(currentPage);
+    }
+  } catch (err) {
+    console.error("Error deleting bencana:", err);
+    Swal.fire("Error", "Gagal menghapus data.", "error");
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -139,14 +138,18 @@ const Bencana = () => {
         });
         Swal.fire("Berhasil!", "Data bencana berhasil ditambahkan.", "success");
       }
+
       fetchBencana(currentPage);
       setFormData({ kib: "", wilayah_id: "", tanggal: "", kejadian: "", detail: "" });
       setShowForm(false);
+      setEditMode(false); 
+      setCurrentBencanaId(null);
     } catch (err) {
       console.error(err);
       Swal.fire("Error", "Terjadi kesalahan saat menyimpan data.", "error");
     }
   };
+
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -159,6 +162,18 @@ const Bencana = () => {
       <h2 className="text-3xl font-semibold mb-6 text-center">
         Daftar Bencana Tanah Longsor
       </h2>
+
+      <div className="mb-4 text-right">
+        <Button
+          style="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-all duration-200"
+          text="Tambah Data Bencana"
+          onClick={() => {
+            setShowForm(true);
+            setEditMode(false); // Pastikan editMode false
+            setFormData({ kib: "", wilayah_id: "", tanggal: "", kejadian: "", detail: "" }); // Reset form
+          }}
+        />
+      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-4">
@@ -202,14 +217,6 @@ const Bencana = () => {
           className="p-2 border rounded-lg flex-1"
         />
       </div>
-
-      <div className="mb-4 text-right">
-        <Button
-          style="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-all duration-200"
-          text="Tambah Data Bencana"
-          onClick={() => setShowForm(true)}
-        />
-      </div>
       <Table
         data={bencana}
         getWilayahName={(id) => {
@@ -247,7 +254,7 @@ const Bencana = () => {
           handleSubmit={handleSubmit}
           editMode={editMode}
           setShowForm={setShowForm}
-          bencana={bencana}
+          wilayahList={wilayahList.map((item) => [item.id, item.nama])}
         />
       )}
     </div>
