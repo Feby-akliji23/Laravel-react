@@ -1,18 +1,76 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
 use App\Models\Bencana;
 use App\Models\Wilayah;
 use Illuminate\Http\Request;
 
+/**
+ * @OA\Tag(
+ *     name="Bencana",
+ *     description="API endpoints for managing bencana"
+ * )
+ *
+ * @OA\PathItem(
+ *     path="/api/bencana"
+ * )
+ */
+
 class BencanaController extends Controller
 {
     /**
-     * Tampilkan semua data bencana.
+     * Mengambil data bencana.
      */
-public function index(Request $request)
+
+    /**
+     * @OA\Get(
+     *     path="/api/bencana",
+     *     summary="Get list of bencana",
+     *     tags={"Bencana"},
+     *     @OA\Parameter(
+     *         name="wilayah_id",
+     *         in="query",
+     *         description="Filter by wilayah ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="tanggal_dari",
+     *         in="query",
+     *         description="Start date for filtering",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Parameter(
+     *         name="tanggal_hingga",
+     *         in="query",
+     *         description="End date for filtering",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search term for kejadian or detail",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="code", type="integer"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="allWilayah", type="array", @OA\Items(type="object"))
+     *         )
+     *     )
+     * )
+     */
+
+    public function index(Request $request)
     {
         $query = Bencana::with('wilayah');
 
@@ -51,6 +109,37 @@ public function index(Request $request)
     /**
      * Simpan data bencana baru.
      */
+
+    /**
+     * @OA\Post(
+     *     path="/api/bencana",
+     *     summary="Create a new bencana",
+     *     tags={"Bencana"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"wilayah_id", "kib", "kejadian", "detail", "tanggal"},
+     *             @OA\Property(property="wilayah_id", type="integer"),
+     *             @OA\Property(property="kib", type="integer"),
+     *             @OA\Property(property="kejadian", type="string"),
+     *             @OA\Property(property="detail", type="string"),
+     *             @OA\Property(property="tanggal", type="string", format="date")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Bencana created successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="code", type="integer"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
+     */
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -73,6 +162,43 @@ public function index(Request $request)
     /**
      * Update data bencana.
      */
+
+     /**
+     * @OA\Put(
+     *     path="/api/bencana/{id}",
+     *     summary="Update a bencana",
+     *     tags={"Bencana"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of bencana to update",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="wilayah_id", type="integer"),
+     *             @OA\Property(property="kib", type="integer"),
+     *             @OA\Property(property="kejadian", type="string"),
+     *             @OA\Property(property="detail", type="string"),
+     *             @OA\Property(property="tanggal", type="string", format="date")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Bencana updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="code", type="integer"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
+     */
+
     public function update(Request $request, Bencana $bencana)
     {
         $validated = $request->validate([
@@ -95,6 +221,31 @@ public function index(Request $request)
     /**
      * Hapus data bencana.
      */
+
+    /**
+     * @OA\Delete(
+     *     path="/api/bencana/{id}",
+     *     summary="Delete a bencana",
+     *     tags={"Bencana"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of bencana to delete",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Bencana deleted successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="code", type="integer"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
+
     public function destroy(Bencana $bencana)
     {
         $bencana->delete();
